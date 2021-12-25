@@ -97,9 +97,9 @@ val metricsLogger = KotlinLogging.logger("Metrics")
 
 fun <T> withMetrics(logger: KLogger = metricsLogger, identifier: String = "", invokable: () -> T): T {
     val startTime = System.currentTimeMillis()
-    val identifiable = if (identifier.length > 1) "[$identifier]" else ""
-    logger.info { "$identifiable Start time: ${LocalDateTime.now()}" }
+    val identifiable = if (identifier.length > 1) "[$identifier] " else ""
+    logger.info { "${identifiable}Start time: ${LocalDateTime.now()}" }
     val returnValue = invokable()
-    logger.info { "$identifiable End time: ${LocalDateTime.now()}, total time:${(System.currentTimeMillis() - startTime) / 1000.0}s" }
+    logger.info { "${identifiable}End time: ${LocalDateTime.now()}, total time:${(System.currentTimeMillis() - startTime) / 1000.0}s" }
     return returnValue
 }
