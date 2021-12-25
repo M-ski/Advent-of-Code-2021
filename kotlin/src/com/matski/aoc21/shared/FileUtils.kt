@@ -2,7 +2,6 @@ package com.matski.aoc21.shared
 
 import mu.KLogger
 import mu.KotlinLogging
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.time.LocalDateTime
@@ -61,7 +60,9 @@ private class FileUtils {
                 }
             }
         } else {
-            if (dirOrFile.name.equals(searchHint) && dirOrFile.absolutePath.contains(fileName)) return true
+            if (dirOrFile.name.equals(searchHint) &&
+                dirOrFile.absolutePath.contains(fileName.replace("/", File.separator))
+            ) return true
         }
         return false
     }
@@ -97,8 +98,8 @@ val metricsLogger = KotlinLogging.logger("Metrics")
 fun <T> withMetrics(logger: KLogger = metricsLogger, identifier: String = "", invokable: () -> T): T {
     val startTime = System.currentTimeMillis()
     val identifiable = if (identifier.length > 1) "[$identifier]" else ""
-    logger.info { "$identifiable Start time: ${LocalDateTime.now()}"}
+    logger.info { "$identifiable Start time: ${LocalDateTime.now()}" }
     val returnValue = invokable()
-    logger.info { "$identifiable End time: ${LocalDateTime.now()}, total time:${(System.currentTimeMillis() - startTime)/1000}s"}
+    logger.info { "$identifiable End time: ${LocalDateTime.now()}, total time:${(System.currentTimeMillis() - startTime) / 1000}s" }
     return returnValue
 }

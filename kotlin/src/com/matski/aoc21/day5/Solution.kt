@@ -8,7 +8,7 @@ val log = KotlinLogging.logger { }
 
 fun main() {
     withMetrics {
-        val lineDefinitions: List<LineDefinition> = readFile("d5-input.txt") { s ->
+        val lineDefinitions: List<LineDefinition> = readFile("day5/input.txt") { s ->
             val coordinates = s.split("->")
                 .flatMap { e -> e.split(",") }
                 .map { r -> r.trim().toInt() }.toIntArray()
