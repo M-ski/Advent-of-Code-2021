@@ -1,0 +1,30 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+    id 'net.ltgt.apt' version '0.21'
+}
+
+group 'com.matski'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets.main {
+    java.srcDirs("src")
+}
+
+
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of("11"))
+    }
+}
+
+dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+    implementation 'org.jetbrains.kotlin:kotlin-script-runtime'
+    implementation 'io.github.microutils:kotlin-logging:2.1.21'
+    implementation 'org.slf4j:slf4j-simple:1.7.32'
+}
+

@@ -1,0 +1,5 @@
+.idea
+#basic kotlin/gradle stuff
+.gradle
+kotlin/build
+kotlin/gradle
