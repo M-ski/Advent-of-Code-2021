@@ -4,9 +4,9 @@ import com.matski.aoc21.shared.readFile
 import com.matski.aoc21.shared.withMetrics
 import mu.KotlinLogging
 
-val log = KotlinLogging.logger { }
 
 fun main() {
+    val log = KotlinLogging.logger { }
     withMetrics {
         val lineDefinitions: List<LineDefinition> = readFile("day5/input.txt") { s ->
             val coordinates = s.split("->")
