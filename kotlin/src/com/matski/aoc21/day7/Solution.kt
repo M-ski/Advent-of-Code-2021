@@ -9,6 +9,7 @@ fun main() {
     val log = KotlinLogging.logger { }
     withMetrics {
         val data: List<Int> = readFile("day7/input.txt") { s -> s.split(",").map(String::toInt) }[0]
+
         fun List<Int>.varianceSumFrom(int: Int): Int {
             var varSum = 0
             forEach { i -> varSum = varSum + abs(i - int) }
@@ -34,8 +35,8 @@ fun main() {
             }
         }
 
-        log.info { "found by min ${data.findMinVariance()}" }
-        (0..10).forEach { v -> log.info { "For '$v' variance: ${data.varianceSumFrom(v)}" } }
+        val minimumPosition = data.findMinVariance()
+        log.info { "found by min $minimumPosition -> total fuel: ${data.varianceSumFrom(minimumPosition)}" }
     }
 
 }
