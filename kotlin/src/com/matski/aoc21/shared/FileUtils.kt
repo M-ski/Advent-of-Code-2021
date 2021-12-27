@@ -91,8 +91,8 @@ fun readFile(fileName: String): List<String> {
     return readFile(fileName) { s -> s }
 }
 
-fun withInput(fileName: String, action: (String) -> Unit): Unit {
-    readFile(fileName) { action }
+fun withInput(fileName: String, action: (String) -> Unit) {
+    fu.breadthFirstSearchForFile(fileName).readLines().forEach{ e -> action(e)}
 }
 
 val metricsLogger = KotlinLogging.logger("Metrics")
