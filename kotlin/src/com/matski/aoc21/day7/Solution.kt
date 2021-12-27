@@ -4,15 +4,21 @@ import com.matski.aoc21.shared.readFile
 import com.matski.aoc21.shared.withMetrics
 import mu.KotlinLogging
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 fun main() {
     val log = KotlinLogging.logger { }
     withMetrics {
         val data: List<Int> = readFile("day7/input.txt") { s -> s.split(",").map(String::toInt) }[0]
 
-        fun List<Int>.varianceSumFrom(int: Int): Int {
+        fun List<Int>.varianceSumFrom(int: Int, exponential: Boolean = true): Int {
             var varSum = 0
-            forEach { i -> varSum = varSum + abs(i - int) }
+            if (exponential) {
+                forEach { i -> varSum += (1 .. (max(i, int) - min(i, int))).sum() }
+            } else {
+                forEach { i -> varSum += abs(i - int) }
+            }
             return varSum
         }
 
@@ -36,7 +42,17 @@ fun main() {
         }
 
         val minimumPosition = data.findMinVariance()
-        log.info { "found by min $minimumPosition -> total fuel: ${data.varianceSumFrom(minimumPosition)}" }
+        withMetrics(identifier = "recursive search") {
+            log.info { "found by min $minimumPosition -> total fuel: ${data.varianceSumFrom(minimumPosition)}" }
+        }
+        withMetrics(identifier = "brute force") {
+            log.info {
+                "brute force method: ${
+                    ((data.minOrNull() ?: 0)..(data.maxOrNull() ?: 10000)).map { i -> data.varianceSumFrom(i) }
+                        .minOrNull()
+                }"
+            }
+        }
     }
 
 }
