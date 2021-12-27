@@ -74,7 +74,7 @@ private data class LanternEel(var reproductiveCycleStage: Int, val topLevelEelNu
         eelLog.debug { "Simulating for ${DAYS - birthDate} (started on $birthDate)" }
         var runDate = birthDate
         while (runDate <= DAYS) {
-            eelLog.debug { "Simulating day $runDate, countdown to hornyness: $reproductiveCycleStage" }
+            eelLog.debug { "Simulating day $runDate, countdown to baby: $reproductiveCycleStage" }
             eelHistory[runDate] = reproductiveCycleStage
             when (reproductiveCycleStage) {
                 0 -> {
