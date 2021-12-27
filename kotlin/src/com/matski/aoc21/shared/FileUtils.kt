@@ -15,9 +15,11 @@ private class FileUtils {
     private fun dirOf(dir: String): String = dir.split("/").joinToString(separator = File.separator)
     val ignorableDirs = arrayOf(
         "$startDir/.idea",
+        "$startDir/.git",
         "$startDir/out",
         "$startDir/kotlin/gradle",
-        "$startDir/kotlin/.gradle"
+        "$startDir/kotlin/.gradle",
+        "$startDir/kotlin/build"
     ).map(this::dirOf)
 
     fun breadthFirstSearchForFile(fileName: String): File {
