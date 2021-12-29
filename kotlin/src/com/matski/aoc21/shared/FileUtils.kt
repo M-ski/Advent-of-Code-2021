@@ -34,8 +34,8 @@ private class FileUtils {
                     dirOrFile,
                     searchHint,
                     fileName,
-                    queue,
-                    { if (fileParts.hasNext()) searchHint = fileParts.next() })
+                    queue
+                ) { if (fileParts.hasNext()) searchHint = fileParts.next() }
             ) return dirOrFile
         }
         throw IOException("File: '${fileName}' could not be found")

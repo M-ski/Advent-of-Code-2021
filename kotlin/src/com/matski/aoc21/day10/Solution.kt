@@ -1,6 +1,6 @@
 package com.matski.aoc21.day10
 
-import com.matski.aoc21.day8.getNotNull
+import com.matski.aoc21.shared.collection.extensions.getNotNull
 import com.matski.aoc21.shared.types.P
 import com.matski.aoc21.shared.readFile
 import mu.KotlinLogging

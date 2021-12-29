@@ -1,5 +1,9 @@
 package com.matski.aoc21.day8
 
+import com.matski.aoc21.shared.collection.extensions.filterAndGet
+import com.matski.aoc21.shared.collection.extensions.getNotNull
+import com.matski.aoc21.shared.collection.extensions.nor
+import com.matski.aoc21.shared.collection.extensions.xand
 import com.matski.aoc21.shared.readFile
 import mu.KotlinLogging
 
@@ -17,20 +21,7 @@ fun MutableMap<Char, MutableSet<DS>>.assignSegment(char: Char, segment: DS) {
     put(char, mutableSetOf(segment))
 }
 
-fun MutableMap<DN, Set<Char>>.getNotNull(number: DN): Set<Char> =
-    get(number) ?: throw IllegalArgumentException("Number $number not found in map")
-
 fun String.nor(chars: Collection<Char>): Collection<Char> = toCharArray().toList().nor(chars)
-
-fun <E> Collection<E>.nor(chars: Collection<E>): Collection<E> {
-    val mutableChars = toMutableList()
-    mutableChars.removeAll(chars)
-    return mutableChars
-}
-
-fun <E> Collection<E>.filterAndGet(filterFn: (E) -> Boolean) = filter { e -> filterFn(e) }.single()
-
-fun <E> Collection<E>.xand(another: Collection<E>): Collection<E> = filter { e -> another.contains(e) }
 
 
 fun main() {

@@ -1,15 +1,16 @@
 package com.matski.aoc21.day9
 
 import com.matski.aoc21.shared.readFile
+import com.matski.aoc21.shared.types.P
+import com.matski.aoc21.shared.collection.extensions.getWithoutCare
 import com.matski.aoc21.shared.withMetrics
 import mu.KLogger
 import mu.KotlinLogging
 import kotlin.streams.toList
 
 private val maxListValue = listOf(Int.MAX_VALUE)
-fun <E> List<E>.getWithoutCare(index: Int, defaultValue: E) = if (index in this.indices) get(index) else defaultValue
-fun List<Int>.getWithoutCare(index: Int) = if (index in this.indices) get(index) else Int.MAX_VALUE
-fun List<List<Int>>.getWithoutCare(index: Int) = if (index in this.indices) get(index) else maxListValue
+fun List<Int>.getWithoutCare(index: Int) = getWithoutCare(index, Int.MAX_VALUE)
+fun List<List<Int>>.getWithoutCare(index: Int) = getWithoutCare(index, maxListValue)
 fun List<List<Int>>.getValue(x: Int, y: Int) = getWithoutCare(y).getWithoutCare(x)
 fun List<Int>.isMinimum(currentX: Int, currentY: Int, yData: List<List<Int>>): Boolean {
     return getWithoutCare(currentX - 1) > get(currentX)
@@ -47,15 +48,15 @@ private data class LocalMinimum(val x: Int, val y: Int, val value: Int, var basi
     val debugLog : KLogger? = if (KotlinLogging.logger("LocalMinimum").isDebugEnabled) KotlinLogging.logger {  } else null
 
     fun exploreBasin(map: List<List<Int>>) {
-        val visited = emptySet<Pair<Int, Int>>().toMutableSet()
+        val visited = emptySet<P<Int, Int>>().toMutableSet()
         visit(this.x, this.y, visited, map)
         basinSize = visited.size
         debugLog?.debug { "LocalMinimum details: $this, visited: $visited" }
     }
 
-    private fun visit(x: Int, y: Int, visited: MutableSet<Pair<Int, Int>>, map: List<List<Int>>) {
-        visited.add(Pair(x, y))
-        val toVisit = arrayOf(Pair(x - 1, y), Pair(x + 1, y), Pair(x, y - 1), Pair(x, y + 1))
+    private fun visit(x: Int, y: Int, visited: MutableSet<P<Int, Int>>, map: List<List<Int>>) {
+        visited.add(P(x, y))
+        val toVisit = arrayOf(P(x - 1, y), P(x + 1, y), P(x, y - 1), P(x, y + 1))
         toVisit.forEach { searchLoc ->
             val testCoord = map.getValue(searchLoc.first, searchLoc.second)
             if (testCoord < 9 && testCoord > map.getValue(x, y) && !visited.contains(searchLoc)) {
