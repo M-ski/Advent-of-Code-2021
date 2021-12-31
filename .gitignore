@@ -3,3 +3,4 @@
 .gradle
 kotlin/build
 kotlin/gradle
+kotlin/src/com/matski/aoc21/other/challenges/*
