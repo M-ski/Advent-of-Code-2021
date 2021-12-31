@@ -10,46 +10,28 @@ import kotlin.math.abs
 fun main() {
     val log = KotlinLogging.logger { }
     var numFlashes = AtomicInteger(0)
-    var dumboGrid: List<List<DumboOctopus>> = getDumbos(
-        readFile("day11/input.txt") { s ->
-            s.toCharArray().map(Char::digitToInt).toList()
-        }, numFlashes
-    )
+    val dumboGrid =
+        getDumbos(readFile("day11/input.txt") { s -> s.toCharArray().map(Char::digitToInt).toList() }, numFlashes)
     dumboGrid.registerNeighbours()
-    log.info { dumboGrid[3][3] }
-    log.info { "Starting state:" }
-    dumboGrid.printState(log, true)
-    (1..100).forEach { day ->
-        log.info { "Day: $day" }
-        dumboGrid.flatten().forEach { dumbo -> dumbo.constructAdditionalPylons(true) }
-        dumboGrid.flatten().forEach { dumbo -> dumbo.simulateFlash() }
-        dumboGrid.printState(log, false)
-    }
-    log.info { "End state:" }
-    dumboGrid.printState(log, true)
-    log.info { "num flashes: ${numFlashes.get()}" }
-    // part 2
-    numFlashes.set(0)
-    dumboGrid = getDumbos(
-        readFile("day11/input.txt") { s ->
-            s.toCharArray().map(Char::digitToInt).toList()
-        }, numFlashes
-    )
-    dumboGrid.registerNeighbours()
+    // set up params we want to capture
     var allFlashed = false
     var day = 0
     val dumboGridSize = dumboGrid.flatten().size
-    while (!allFlashed) {
-        day+=1
+    var numFlashesAtDay100 = 0
+    // now simulate until all have flashed, or until at least day 100
+    while (!allFlashed || day < 100) {
+        day += 1
         log.info { "Day: $day" }
         dumboGrid.flatten().forEach { dumbo -> dumbo.constructAdditionalPylons(true) }
         dumboGrid.flatten().forEach { dumbo -> dumbo.simulateFlash() }
-        val numFlashedToday = dumboGrid.flatten().map(DumboOctopus::hasFlashed).filter { e -> e == true }.size
+        val numFlashedToday = dumboGrid.flatten().map(DumboOctopus::hasFlashed).filter { e -> e }.size
         log.info {
             "Num flashed: $numFlashedToday, wanted: ${dumboGridSize}"
         }
+        if (day == 100) numFlashesAtDay100 = numFlashes.get()
         allFlashed = numFlashedToday == dumboGridSize
     }
+    log.info { "Day 100 num flashes: $numFlashesAtDay100" }
 }
 
 private fun getDumbos(grid: List<List<Int>>, flashHolder: AtomicInteger): List<List<DumboOctopus>> {
