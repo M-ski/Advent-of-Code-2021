@@ -10,10 +10,11 @@ import kotlin.math.abs
 fun main() {
     val log = KotlinLogging.logger { }
     var numFlashes = AtomicInteger(0)
-    val dumboGrid: List<List<DumboOctopus>> = getDumbos(
+    var dumboGrid: List<List<DumboOctopus>> = getDumbos(
         readFile("day11/input.txt") { s ->
             s.toCharArray().map(Char::digitToInt).toList()
-        }, numFlashes)
+        }, numFlashes
+    )
     dumboGrid.registerNeighbours()
     log.info { dumboGrid[3][3] }
     log.info { "Starting state:" }
@@ -21,10 +22,34 @@ fun main() {
     (1..100).forEach { day ->
         log.info { "Day: $day" }
         dumboGrid.flatten().forEach { dumbo -> dumbo.constructAdditionalPylons(true) }
-        dumboGrid.flatten().forEach{ dumbo -> dumbo.simulateFlash()}
-        dumboGrid.printState(log, true)
+        dumboGrid.flatten().forEach { dumbo -> dumbo.simulateFlash() }
+        dumboGrid.printState(log, false)
     }
+    log.info { "End state:" }
+    dumboGrid.printState(log, true)
     log.info { "num flashes: ${numFlashes.get()}" }
+    // part 2
+    numFlashes.set(0)
+    dumboGrid = getDumbos(
+        readFile("day11/input.txt") { s ->
+            s.toCharArray().map(Char::digitToInt).toList()
+        }, numFlashes
+    )
+    dumboGrid.registerNeighbours()
+    var allFlashed = false
+    var day = 0
+    val dumboGridSize = dumboGrid.flatten().size
+    while (!allFlashed) {
+        day+=1
+        log.info { "Day: $day" }
+        dumboGrid.flatten().forEach { dumbo -> dumbo.constructAdditionalPylons(true) }
+        dumboGrid.flatten().forEach { dumbo -> dumbo.simulateFlash() }
+        val numFlashedToday = dumboGrid.flatten().map(DumboOctopus::hasFlashed).filter { e -> e == true }.size
+        log.info {
+            "Num flashed: $numFlashedToday, wanted: ${dumboGridSize}"
+        }
+        allFlashed = numFlashedToday == dumboGridSize
+    }
 }
 
 private fun getDumbos(grid: List<List<Int>>, flashHolder: AtomicInteger): List<List<DumboOctopus>> {
