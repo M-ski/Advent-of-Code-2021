@@ -1,6 +1,7 @@
 package com.matski.aoc21.day11
 
 import com.matski.aoc21.shared.readFile
+import com.matski.aoc21.shared.withMetrics
 import mu.KLogger
 import mu.KotlinLogging
 import java.util.concurrent.atomic.AtomicInteger
@@ -10,28 +11,31 @@ import kotlin.math.abs
 fun main() {
     val log = KotlinLogging.logger { }
     var numFlashes = AtomicInteger(0)
-    val dumboGrid =
-        getDumbos(readFile("day11/input.txt") { s -> s.toCharArray().map(Char::digitToInt).toList() }, numFlashes)
-    dumboGrid.registerNeighbours()
-    // set up params we want to capture
-    var allFlashed = false
-    var day = 0
-    val dumboGridSize = dumboGrid.flatten().size
-    var numFlashesAtDay100 = 0
-    // now simulate until all have flashed, or until at least day 100
-    while (!allFlashed || day < 100) {
-        day += 1
-        log.info { "Day: $day" }
-        dumboGrid.flatten().forEach { dumbo -> dumbo.constructAdditionalPylons(true) }
-        dumboGrid.flatten().forEach { dumbo -> dumbo.simulateFlash() }
-        val numFlashedToday = dumboGrid.flatten().map(DumboOctopus::hasFlashed).filter { e -> e }.size
-        log.info {
-            "Num flashed: $numFlashedToday, wanted: ${dumboGridSize}"
+    withMetrics(logger = log) {
+        val dumboGrid =
+            getDumbos(readFile("day11/input.txt") { s -> s.toCharArray().map(Char::digitToInt).toList() }, numFlashes)
+        dumboGrid.registerNeighbours()
+        // set up params we want to capture
+        var allFlashed = false
+        var day = 0
+        val dumboGridSize = dumboGrid.flatten().size
+        var numFlashesAtDay100 = 0
+        // now simulate until all have flashed, or until at least day 100
+        while (!allFlashed || day < 100) {
+            day += 1
+            log.debug { "Day: $day" }
+            dumboGrid.flatten().forEach { dumbo -> dumbo.constructAdditionalPylons(true) }
+            dumboGrid.flatten().forEach { dumbo -> dumbo.simulateFlash() }
+            val numFlashedToday = dumboGrid.flatten().map(DumboOctopus::hasFlashed).filter { e -> e }.size
+            log.debug {
+                "Num flashed: $numFlashedToday, wanted: ${dumboGridSize}"
+            }
+            if (day == 100) numFlashesAtDay100 = numFlashes.get()
+            allFlashed = numFlashedToday == dumboGridSize
         }
-        if (day == 100) numFlashesAtDay100 = numFlashes.get()
-        allFlashed = numFlashedToday == dumboGridSize
+        log.info { "Day 100 num flashes: $numFlashesAtDay100" }
+        log.info { "All flashed at day: $day" }
     }
-    log.info { "Day 100 num flashes: $numFlashesAtDay100" }
 }
 
 private fun getDumbos(grid: List<List<Int>>, flashHolder: AtomicInteger): List<List<DumboOctopus>> {
