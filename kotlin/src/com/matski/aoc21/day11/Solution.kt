@@ -1,5 +1,6 @@
 package com.matski.aoc21.day11
 
+import com.matski.aoc21.shared.collection.extensions.mutableList
 import com.matski.aoc21.shared.readFile
 import com.matski.aoc21.shared.withMetrics
 import mu.KLogger
@@ -85,7 +86,7 @@ data class DumboOctopus(
     var energyLevel: Int,
     val flashHolder: AtomicInteger,
     var hasFlashed: Boolean = false,
-    val neighbours: MutableCollection<DumboOctopus> = emptyList<DumboOctopus>().toMutableList()
+    val neighbours: MutableCollection<DumboOctopus> = mutableList()
 ) {
 
     fun constructAdditionalPylons(newDay: Boolean = false) {

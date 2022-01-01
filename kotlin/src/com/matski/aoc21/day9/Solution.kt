@@ -3,6 +3,8 @@ package com.matski.aoc21.day9
 import com.matski.aoc21.shared.readFile
 import com.matski.aoc21.shared.types.P
 import com.matski.aoc21.shared.collection.extensions.getWithoutCare
+import com.matski.aoc21.shared.collection.extensions.mutableList
+import com.matski.aoc21.shared.collection.extensions.mutableSet
 import com.matski.aoc21.shared.withMetrics
 import mu.KLogger
 import mu.KotlinLogging
@@ -25,7 +27,7 @@ fun main() {
     val data: List<List<Int>> = readFile("day9/input.txt") { s ->
         s.toCharArray().map(Char::toString).map(String::toInt)
     }
-    var minCoords: MutableList<LocalMinimum> = emptyList<LocalMinimum>().toMutableList()
+    var minCoords: MutableList<LocalMinimum> = mutableList()
     data.forEachIndexed { yIndex, xList ->
         xList.forEachIndexed { xIndex, value ->
             if (xList.isMinimum(xIndex, yIndex, data)) minCoords.add(LocalMinimum(xIndex, yIndex, value))
@@ -48,7 +50,7 @@ private data class LocalMinimum(val x: Int, val y: Int, val value: Int, var basi
     val debugLog : KLogger? = if (KotlinLogging.logger("LocalMinimum").isDebugEnabled) KotlinLogging.logger {  } else null
 
     fun exploreBasin(map: List<List<Int>>) {
-        val visited = emptySet<P<Int, Int>>().toMutableSet()
+        val visited = mutableSet<P<Int, Int>>()
         visit(this.x, this.y, visited, map)
         basinSize = visited.size
         debugLog?.debug { "LocalMinimum details: $this, visited: $visited" }

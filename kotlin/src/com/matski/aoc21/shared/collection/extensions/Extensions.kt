@@ -1,5 +1,8 @@
 package com.matski.aoc21.shared.collection.extensions
 
+fun <E> mutableList(vararg elements: E): MutableList<E> = listOf(*elements).toMutableList()
+fun <E> mutableSet(vararg elements: E): MutableSet<E> = setOf(*elements).toMutableSet()
+
 fun <E> List<E>.getWithoutCare(index: Int, defaultValue: E) = if (index in this.indices) get(index) else defaultValue
 
 fun <K, V> Map<K, V>.getNotNull(key: K): V = get(key) ?: throw IllegalArgumentException("$key not found in map")

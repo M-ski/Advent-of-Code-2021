@@ -1,5 +1,6 @@
 package com.matski.aoc21.day6
 
+import com.matski.aoc21.shared.collection.extensions.mutableList
 import com.matski.aoc21.shared.readFile
 import com.matski.aoc21.shared.withMetrics
 import mu.KotlinLogging
@@ -34,7 +35,7 @@ private class StateAggregator(val eels: List<LanternEel>) {
 
     init {
         for (day in 0..DAYS) {
-            eelStateOnDay[day] = listOf<Int>().toMutableList()
+            eelStateOnDay[day] = mutableList()
         }
         eels.sortedWith { e1, e2 ->
             if (e1.birthDate == e2.birthDate) e1.topLevelEelNumber.compareTo(e2.topLevelEelNumber)
@@ -57,7 +58,7 @@ private class StateAggregator(val eels: List<LanternEel>) {
 
 private data class LanternEel(var reproductiveCycleStage: Int, val topLevelEelNumber: Int, val birthDate: Int = 0) {
 
-    private val children: MutableList<LanternEel> = emptyList<LanternEel>().toMutableList()
+    private val children: MutableList<LanternEel> = mutableList()
     val eelHistory: MutableMap<Int, Int> = HashMap()
     val eelLog = KotlinLogging.logger("Eel-$topLevelEelNumber-$birthDate")
 
