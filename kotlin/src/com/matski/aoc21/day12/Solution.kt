@@ -12,9 +12,7 @@ import mu.KotlinLogging
 fun main() {
     val log = KotlinLogging.logger { }
     withMetrics(identifier = "Day 12") {
-        val cavePairs = readFile("day12/input.txt") { s ->
-            P(s.split("-")[0], s.split("-")[1])
-        }
+        val cavePairs = readFile("day12/input.txt") { s -> P(s.split("-")[0], s.split("-")[1]) }
         log.info { "Edges: $cavePairs" }
         val graph = Graph.createFromRoot("start", cavePairs, Node::caveName)
         log.info { "Complied Cave Graph: $graph" }
@@ -24,10 +22,7 @@ fun main() {
     }
 }
 
-data class Graph(
-    val edges: Collection<Pair<String, String>>,
-    val indexingFunction: (Node) -> String,
-) {
+data class Graph(val edges: Collection<Pair<String, String>>, val indexingFunction: (Node) -> String) {
     lateinit var root: Node
     val indexedNodes: MutableMap<String, Node> = mutableMapOf()
 
@@ -36,22 +31,18 @@ data class Graph(
     }
 
     fun getAllPaths(): List<String> = navigate(
-        indexedNodes.getNotNull("start"),
-        indexedNodes.getNotNull("end")
+        indexedNodes.getNotNull("start"), indexedNodes.getNotNull("end")
     )
 
     fun navigate(
-        from: Node,
-        to: Node,
-        visited: MutableList<String> = mutableList(),
-        paths: MutableList<String> = mutableList()
+        from: Node, to: Node, visited: MutableList<String> = mutableList(), paths: MutableList<String> = mutableList()
     ): List<String> {
         visited.add(from.caveName)
         from.neighbours.forEach { node ->
             if (node == to) {
                 paths.add("${visited.joinToString(",")},end")
             } else {
-                if (node.isLargeCave){
+                if (node.isLargeCave) {
                     navigate(node, to, mutableList(*visited.toTypedArray()), paths)
                 } else if (!visited.contains(node.caveName)) {
                     navigate(node, to, mutableList(*visited.toTypedArray()), paths)
@@ -79,8 +70,8 @@ data class Graph(
                 edges.forEach { p -> rootNode.addNode(p) }
                 log.debug { "Pass $pass resolved: ${graph.indexedNodes.size}" }
             }
-            // sorting the neighbours my name emulates the stuff in the hint
-            graph.indexedNodes.values.forEach{node -> node.neighbours.sortBy(indexingFunction)}
+            // sorting the neighbours by name emulates the stuff in the hint
+            graph.indexedNodes.values.forEach { node -> node.neighbours.sortBy(indexingFunction) }
             log.debug { "Compiled Graph: $this" }
             return graph
         }
