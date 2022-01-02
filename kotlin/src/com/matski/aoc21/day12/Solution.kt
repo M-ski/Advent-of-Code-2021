@@ -16,7 +16,7 @@ fun main() {
         log.info { "Edges: $cavePairs" }
         val graph = Graph.createFromRoot("start", cavePairs, Node::caveName)
         log.info { "Complied Cave Graph: $graph" }
-        val paths = graph.getAllPaths()
+        val paths = graph.getAllPaths(true)
         log.info { "All paths from start to end: \n${paths.joinToString(separator = "\n")}" }
         log.info { "That's ${paths.size} paths" }
     }
@@ -30,22 +30,38 @@ data class Graph(val edges: Collection<Pair<String, String>>, val indexingFuncti
         return "Graph:\n${indexedNodes.map { entry -> entry.value.toString() }.joinToString(separator = "\n")}"
     }
 
-    fun getAllPaths(): List<String> = navigate(
-        indexedNodes.getNotNull("start"), indexedNodes.getNotNull("end")
+    fun getAllPaths(visitSmallCavesTwice: Boolean): List<String> = navigate(
+        indexedNodes.getNotNull("start"), indexedNodes.getNotNull("end"),
+        visitSmallCavesTwice = visitSmallCavesTwice, doubleVisitedCave = null
     )
 
+
     fun navigate(
-        from: Node, to: Node, visited: MutableList<String> = mutableList(), paths: MutableList<String> = mutableList()
+        from: Node, to: Node,
+        visited: MutableList<String> = mutableList(), paths: MutableList<String> = mutableList(),
+        doubleVisitedCave: String?, visitSmallCavesTwice: Boolean
     ): List<String> {
         visited.add(from.caveName)
         from.neighbours.forEach { node ->
             if (node == to) {
-                paths.add("${visited.joinToString(",")},end")
+                paths.add("${visited.joinToString(",")},${to.caveName}")
             } else {
                 if (node.isLargeCave) {
-                    navigate(node, to, mutableList(*visited.toTypedArray()), paths)
-                } else if (!visited.contains(node.caveName)) {
-                    navigate(node, to, mutableList(*visited.toTypedArray()), paths)
+                    navigate(node, to, mutableList(*visited.toTypedArray()), paths, doubleVisitedCave, visitSmallCavesTwice)
+                } else if (visitSmallCavesTwice) {
+                    if (doubleVisitedCave == null && !(node.caveName == "start" || node.caveName == to.caveName)) {
+                        // no small cave has been visited twice yet, therefore, check if this small cave has
+                        // already been visited, if not, continue to pass through null, otherwise set this as the double
+                        // visited cave name so that it can be the only one visited twice
+                        val caveToVisitAgain = if (visited.contains(node.caveName)) node.caveName else null
+                        navigate(node, to, mutableList(*visited.toTypedArray()), paths, caveToVisitAgain, caveToVisitAgain == null)
+                    } else if (!visited.contains(node.caveName)) {
+                        navigate(node, to, mutableList(*visited.toTypedArray()), paths, doubleVisitedCave, true)
+                    }
+                } else {
+                    if (!visited.contains(node.caveName)) {
+                        navigate(node, to, mutableList(*visited.toTypedArray()), paths, doubleVisitedCave, false)
+                    }
                 }
             }
         }
