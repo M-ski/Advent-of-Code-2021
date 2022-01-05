@@ -13,6 +13,13 @@ fun <E> Collection<E>.nor(chars: Collection<E>): Collection<E> {
     return mutableChars
 }
 
-fun <E> Collection<E>.filterAndGet(filterFn: (E) -> Boolean) = filter { e -> filterFn(e) }.single()
+fun <E> Collection<E>.filterAndGet(filterFn: (E) -> Boolean) = single { e -> filterFn(e) }
 
 fun <E> Collection<E>.xand(another: Collection<E>): Collection<E> = filter { e -> another.contains(e) }
+
+fun <L, R, E> Collection<E>.toPair(lMapper: (E) -> L, rMapper: (E) -> R): Pair<L, R> {
+    if (size != 2) throw IllegalArgumentException("toPair(): expected collection not containing 2 entries, found: $size")
+    return Pair(lMapper(elementAt(0)), rMapper(elementAt(1)))
+}
+fun <E, M> Collection<E>.toPair(valueMapper: (E) -> M): Pair<E, M> = toPair({s -> s}, valueMapper)
+fun <E> Collection<E>.toPair(): Pair<E, E> = toPair({ s -> s })
