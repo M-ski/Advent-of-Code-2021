@@ -17,9 +17,23 @@ fun <E> Collection<E>.filterAndGet(filterFn: (E) -> Boolean) = single { e -> fil
 
 fun <E> Collection<E>.xand(another: Collection<E>): Collection<E> = filter { e -> another.contains(e) }
 
+fun <E> MutableCollection<E>.add(element: E?) {
+    if (element != null) add(element)
+}
+
 fun <L, R, E> Collection<E>.toPair(lMapper: (E) -> L, rMapper: (E) -> R): Pair<L, R> {
     if (size != 2) throw IllegalArgumentException("toPair(): expected collection not containing 2 entries, found: $size")
     return Pair(lMapper(elementAt(0)), rMapper(elementAt(1)))
 }
 fun <E, M> Collection<E>.toPair(valueMapper: (E) -> M): Pair<E, M> = toPair({s -> s}, valueMapper)
 fun <E> Collection<E>.toPair(): Pair<E, E> = toPair({ s -> s })
+
+fun <V, E> Collection<E>.reduceToMap(initialMapValue: V, reducer: (E, V) -> V): Map<E, V> {
+    val reduced = HashMap<E, V>()
+    forEach { e -> reduced.set(e, reducer(e, reduced.getOrDefault(e, initialMapValue))) }
+    return reduced
+}
+
+fun <E> Collection<E>.countOccurrences(): Map<E, Long> {
+    return reduceToMap(0) { _, acc -> acc + 1 }
+}
