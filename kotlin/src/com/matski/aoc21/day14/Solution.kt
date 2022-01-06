@@ -7,7 +7,8 @@ import com.matski.aoc21.shared.readFile
 import com.matski.aoc21.shared.types.P
 import mu.KotlinLogging
 
-private const val simulationRuns = 10
+private const val simulationRuns = 40
+private const val inputFile = "day14/input.txt"
 
 fun main() {
     val log = KotlinLogging.logger {}
@@ -21,12 +22,11 @@ fun main() {
             newPolymer.add(mappings[mapping])
             newPolymer.add(polymerGrowth[i])
         }
-        log.info { "Polymer after growth cycle $r: ${newPolymer.joinToString(separator = "")}" }
+        log.debug { "Polymer after growth cycle $r: ${newPolymer.joinToString(separator = "")}" }
+        log.info { "Occurences: (${newPolymer.countOccurrences().map { e -> "${e.key}:${e.value}" }.joinToString(separator = ", ")})" }
         polymerGrowth = newPolymer
     }
-    val occurences = polymerGrowth.countOccurrences()
-    log.info { "Occurences: (${occurences.map { e -> "${e.key}:${e.value}" }.joinToString(separator = ", ")})" }
-    var (minOccurance, maxOccurance) = getMinAndMaxCharOccurances(occurences)
+    val (minOccurance, maxOccurance) = getMinAndMaxCharOccurances(polymerGrowth.countOccurrences())
     log.info { "Max: $maxOccurance, Min: $minOccurance, Delta: ${maxOccurance.second - minOccurance.second}" }
 }
 
@@ -47,7 +47,7 @@ private fun getMinAndMaxCharOccurances(occurences: Map<Char, Long>): Pair<P<Char
 fun parseInput(): P<String, Map<String, Char>> {
     var startingLine = ""
     val patterns: MutableMap<String, Char> = HashMap()
-    readFile("day14/input.txt") { line ->
+    readFile(inputFile) { line ->
         if (line.contains("->").not() && line.length > 1) {
             startingLine = line.trim()
         } else if (line.contains("->")) {
