@@ -1,5 +1,6 @@
 package com.matski.aoc21.day10
 
+import com.matski.aoc21.shared.collection.extensions.Stack
 import com.matski.aoc21.shared.collection.extensions.getNotNull
 import com.matski.aoc21.shared.types.P
 import com.matski.aoc21.shared.readFile
@@ -29,17 +30,16 @@ fun main() {
 }
 
 private fun parseLine(splitLine: CharArray): Pair<ParseStatus, List<Char>> {
-    val openedChars = ArrayDeque<Char>()
+    val openedChars = Stack<Char>()
     splitLine.forEach { char ->
         if (char in charPairings.keys) {
-            openedChars.addLast(char)
+            openedChars.push(char)
         } else {
-            val last = openedChars.removeLast()
+            val last = openedChars.pop()
             if (last != reverseCharPairings.getNotNull(char)) return Pair(ParseStatus.ERROR, listOf(char))
         }
     }
-    // array deque is reverse order, so reverse back to get the score
-    return Pair(ParseStatus.INCOMPLETE, openedChars.map { e -> charPairings.getNotNull(e) }.toList().reversed())
+    return Pair(ParseStatus.INCOMPLETE, openedChars.map { e -> charPairings.getNotNull(e) }.toList())
 }
 
 private fun calcCompletionScore(completionSegments: List<Char>): Long {
