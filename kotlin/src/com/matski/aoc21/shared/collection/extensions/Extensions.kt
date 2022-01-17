@@ -28,9 +28,16 @@ fun <L, R, E> Collection<E>.toPair(lMapper: (E) -> L, rMapper: (E) -> R): Pair<L
 fun <E, M> Collection<E>.toPair(valueMapper: (E) -> M): Pair<E, M> = toPair({s -> s}, valueMapper)
 fun <E> Collection<E>.toPair(): Pair<E, E> = toPair({ s -> s })
 
-fun <V, E> Collection<E>.reduceToMap(initialMapValue: V, reducer: (E, V) -> V): Map<E, V> {
-    val reduced = HashMap<E, V>()
-    forEach { e -> reduced.set(e, reducer(e, reduced.getOrDefault(e, initialMapValue))) }
+fun <V, E> Collection<E>.reduceToMap(initialMapValue: V, reducer: (nextEntry: E, accumulatedValue: V) -> V): Map<E, V> {
+    return reduceToMap(initialMapValue, {e -> e}, reducer)
+}
+
+fun <V, K, E> Collection<E>.reduceToMap(initialMapValue: V, keyMapper: (entry: E) -> K, reducer: (nextEntry: E, accumulatedValue: V) -> V): Map<K, V> {
+    val reduced = HashMap<K, V>()
+    forEach { e ->
+        val mapKey = keyMapper(e)
+        reduced[mapKey] = reducer(e, reduced.getOrDefault(mapKey, initialMapValue))
+    }
     return reduced
 }
 
