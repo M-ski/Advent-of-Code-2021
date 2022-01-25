@@ -19,10 +19,10 @@ class WordleSolver(
 
     fun solve() {
         while (continueSolving) {
-            // first, add a new set of input into the filter, then filter our dictionary
-            filter.add(input.getInput())
             filteredWords = filteredWords.filter(filter::filterWord)
-            val filteredScoredWords = getScoredFilteredWords()
+            val remainingWordCharFrequencies = filteredWords.flatMap { s -> s.toCharArray().toList() }
+                .reduceToMap(0) { _, accumulatedValue -> accumulatedValue + 1 }.toMutableMap()
+            val filteredScoredWords = getScoredFilteredWords(remainingWordCharFrequencies)
             // then lets log how many possible remaining words there are
             log.info {
                 "Possible remaining words (length: ${filteredWords.size}): ${
@@ -31,7 +31,7 @@ class WordleSolver(
             }
             // and now, lets attempt to recommend words to guess by scoring future words based on what num of chars are
             // left to guess, then remove char scores for already known chars - no need to re-guess those
-            val scoredWords = getScoredWordRecommendations()
+            val scoredWords = getScoredWordRecommendations(remainingWordCharFrequencies)
             // and show the remaining guesses
             val higestScoredWords = scoredWords.sortedByDescending { (_, freq) -> freq }
             log.info {
@@ -43,41 +43,55 @@ class WordleSolver(
             if (filteredWords.size <= 1) {
                 continueSolving = false
             }
+            // first, add a new set of input into the filter, then filter our dictionary
+            filter.add(input.getInput())
         }
     }
 
-    private fun getScoredFilteredWords() = filteredWords
-        .map { word ->
-            var score = 0
-            val seenLetters = mutableSetOf<Char>()
-            word.forEachIndexed { i, c ->
-                if (c in filter.presentChars && !(c in seenLetters)) {
-                    score += if (charInCorrectPosition(i)) 500 else 150
-                    seenLetters.add(c)
+    private fun getScoredFilteredWords(remainingWordCharFrequencies: Map<Char, Int>): List<Pair<String, Int>> {
+        var min = Int.MAX_VALUE
+        var max = Int.MIN_VALUE
+        remainingWordCharFrequencies.forEach { _, score ->
+            min = if (score < min) score else min
+            max = if (score > max) score else max
+        }
+        val normalizedCharFrequencies = remainingWordCharFrequencies.toMutableMap()
+            .map { (c, score) ->
+                val normalised = (score - min).toDouble() / (max - min).toDouble()
+                Pair(c, (normalised * 100).toInt())
+            }.toMap()
+        return filteredWords
+            .map { word ->
+                var score = 0
+                val seenLetters = mutableSetOf<Char>()
+                word.forEachIndexed { i, c ->
+                    if (c in filter.presentChars && c !in seenLetters) {
+                        score += (if (charInCorrectPosition(i)) 2 else 1) * normalizedCharFrequencies.getOrDefault(c, 0)
+                        seenLetters.add(c)
+                    }
+                    if (charInWrongPosition(c, i) || c in filter.nonPresentChars) {
+                        score -= 1000
+                    }
                 }
-                if (charInWrongPosition(c, i) || c in filter.nonPresentChars) {
-                    score -= 1000
-                }
-            }
-            Pair(word, score)
-        }.sortedByDescending { (_, freq) -> freq }
+                Pair(word, score)
+            }.sortedByDescending { (_, freq) -> freq }
+    }
 
-    private fun getScoredWordRecommendations(): List<Pair<String, Int>> {
-        val remainingWordCharFrequencies = filteredWords.flatMap { s -> s.toCharArray().toList() }
-            .reduceToMap(0) { _, accumulatedValue -> accumulatedValue + 1 }.toMutableMap()
-        filter.guessedChars.toCharArray().forEach { char -> remainingWordCharFrequencies.remove(char) }
+    private fun getScoredWordRecommendations(remainingWordCharFrequencies: Map<Char, Int>): List<Pair<String, Int>> {
+        val slimmedCharMap = remainingWordCharFrequencies.toMutableMap()
+        filter.guessedChars.toCharArray().forEach { char -> slimmedCharMap.remove(char) }
         val scoredWords = dictionary
             .map { word ->
                 // score the remaining words, do not reward words with multiple of the same char
                 val seenLetters = mutableSetOf<Char>()
                 var score = 0
-                word.forEachIndexed { i, c ->
+                word.forEach { c ->
                     if (c in filter.nonPresentChars) {
                         score -= 1000
                     } else {
                         if ((c in seenLetters).not()) {
                             seenLetters.add(c)
-                            score += remainingWordCharFrequencies.getOrDefault(c, 0)
+                            score += slimmedCharMap.getOrDefault(c, 0)
                         } else {
                             score -= 1000
                         }
@@ -188,7 +202,7 @@ class CommandLineWordleInput : WordleInput {
 
 class WordsLookup {
     fun getWords(): List<String> {
-        return File(System.getProperty("user.dir") + "\\kotlin\\src\\com\\matski\\aoc21\\wordle\\words5l.txt")
+        return File(System.getProperty("user.dir") + "\\kotlin\\src\\com\\matski\\aoc21\\wordle\\src_extracted_wordle_words.txt")
             .readLines().distinct().toList()
     }
 }
